@@ -2,6 +2,144 @@
 
 ## Next Release
 
+## Mypy 2.2 (Unreleased)
+
+We've just uploaded mypy 2.2.0 to the Python Package Index ([PyPI](https://pypi.org/project/mypy/)).
+Mypy is a static type checker for Python. This release includes new features, performance
+improvements and bug fixes. You can install it as follows:
+
+    python3 -m pip install -U mypy
+
+You can read the full documentation for this release on [Read the Docs](http://mypy.readthedocs.io).
+
+### Support for Closed TypedDicts (PEP 728)
+
+Mypy now supports closed TypedDicts as specified in PEP 728. A closed TypedDict cannot have extra
+keys beyond those explicitly defined.
+
+Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
+
+### Mypyc Improvements
+
+- Make function wrappers thread-safe on free-threaded builds (Jukka Lehtosalo, PR [21620](https://github.com/python/mypy/pull/21620))
+- Make list remove and index thread-safe on free-threaded builds (Jukka Lehtosalo, PR [21614](https://github.com/python/mypy/pull/21614))
+- Fix dict iteration memory safety on free-threaded builds (Jukka Lehtosalo, PR [21617](https://github.com/python/mypy/pull/21617))
+- Make some dict primitives thread-safe on free-threading builds (Jukka Lehtosalo, PR [21616](https://github.com/python/mypy/pull/21616))
+- Fix free-threading race condition in argument parsing (Jukka Lehtosalo, PR [21613](https://github.com/python/mypy/pull/21613))
+- Fix name lookup when class var and module var have the same name (Jukka Lehtosalo, PR [21594](https://github.com/python/mypy/pull/21594))
+- Report file and line number on uncaught exceptions (Jukka Lehtosalo, PR [21584](https://github.com/python/mypy/pull/21584))
+- Use `other` arg instead of `self` for RHS type (Ryan Heard, PR [21569](https://github.com/python/mypy/pull/21569))
+- Use `method_sig` to get the method signature (Ryan Heard, PR [21567](https://github.com/python/mypy/pull/21567))
+- Preserve inherited attribute defaults under separate=True (Jo, PR [21547](https://github.com/python/mypy/pull/21547))
+- Add test for incremental builtin_base class construction across groups (Jo, PR [21524](https://github.com/python/mypy/pull/21524))
+- Fix missing cross-group header deps in incremental builds (Jo, PR [21490](https://github.com/python/mypy/pull/21490))
+- Fix cross-group call to inherited __mypyc_defaults_setup (Jo, PR [21481](https://github.com/python/mypy/pull/21481))
+- Fix non-deterministic class struct layout under `separate=True` (Vaggelis Danias, PR [21530](https://github.com/python/mypy/pull/21530))
+- Specialize `s[i] == 'x'` to a codepoint int compare (Vaggelis Danias, PR [21579](https://github.com/python/mypy/pull/21579))
+- Add `librt.strings.toupper` and `tolower` codepoint primitives (Vaggelis Danias, PR [21553](https://github.com/python/mypy/pull/21553))
+- Add `librt.strings.isidentifier` codepoint primitive (Vaggelis Danias, PR [21522](https://github.com/python/mypy/pull/21522))
+- Add `librt.strings.isalpha` codepoint primitive (Vaggelis Danias, PR [21521](https://github.com/python/mypy/pull/21521))
+- Add `librt.strings.isalnum` codepoint primitive (Vaggelis Danias, PR [21509](https://github.com/python/mypy/pull/21509))
+- Add `librt.strings.isdigit` codepoint primitive (Vaggelis Danias, PR [21504](https://github.com/python/mypy/pull/21504))
+- Add `librt.strings.isspace` char primitive (Vaggelis Danias, PR [21462](https://github.com/python/mypy/pull/21462))
+- Fix reference leak in mypyc bytes concatenation (Colinxu2020, PR [21469](https://github.com/python/mypy/pull/21469))
+- Reorder librt Python.h includes (Marc Mueller, PR [21446](https://github.com/python/mypy/pull/21446))
+- Document free threading and other doc updates (Jukka Lehtosalo, PR [21494](https://github.com/python/mypy/pull/21494))
+
+### Fixes to Crashes
+
+- Fix crash on invalid recursive variadic alias (Ivan Levkivskyi, PR [21572](https://github.com/python/mypy/pull/21572))
+- Fix crashes on variadic unpacking in synthetic types (Ivan Levkivskyi, PR [21555](https://github.com/python/mypy/pull/21555))
+- Fix crash on unhandled meet variadic tuple vs indtance (Ivan Levkivskyi, PR [21558](https://github.com/python/mypy/pull/21558))
+- Fix crash on deferred generic class nested in function (Ivan Levkivskyi, PR [21557](https://github.com/python/mypy/pull/21557))
+- Fix crash in new-style type alias with variadic unpack (Ivan Levkivskyi, PR [21551](https://github.com/python/mypy/pull/21551))
+- Fix various crashes on recursive type variable defaults (Ivan Levkivskyi, PR [21491](https://github.com/python/mypy/pull/21491))
+- Fix crash for empty Annotated type application (Rayan Salhab, PR [21503](https://github.com/python/mypy/pull/21503))
+- Fix crash on Unpack used without arguments in class bases (Sai Asish Y, PR [21470](https://github.com/python/mypy/pull/21470))
+
+### Performance Improvements
+
+- Memoize the options snapshot (Kevin Kannammalil, PR [21354](https://github.com/python/mypy/pull/21354))
+- Optimize SCC scheduler `not_ready_deps` tracking (Kevin Kannammalil, PR [21389](https://github.com/python/mypy/pull/21389))
+- Speed up transitive_dep_hash for singleton SCCs (Kevin Kannammalil, PR [21390](https://github.com/python/mypy/pull/21390))
+- Optimize typeform checks (Jelle Zijlstra, PR [21459](https://github.com/python/mypy/pull/21459))
+
+### Improvements to the Native Parser
+
+- Support --shadow-file with --native-parser (Jukka Lehtosalo, PR [21623](https://github.com/python/mypy/pull/21623))
+- Add Python version checks to native parser (Kevin Kannammalil, PR [21539](https://github.com/python/mypy/pull/21539))
+- Allow nativeparse to parse source code directly (bzoracler, PR [21260](https://github.com/python/mypy/pull/21260))
+- Bump ast-serialize to 0.5.0 (Ivan Levkivskyi, PR [21501](https://github.com/python/mypy/pull/21501))
+- Bump ast-serialize to 0.4.0 (Ivan Levkivskyi, PR [21487](https://github.com/python/mypy/pull/21487))
+
+### Other Notable Fixes and Improvements
+
+- Add function definition notes for `too_many_positional_arguments` errors (Kevin Kannammalil, PR [21410](https://github.com/python/mypy/pull/21410))
+- Fix the exportjson tool (.ff cache to .json conversion) (Jukka Lehtosalo, PR [21628](https://github.com/python/mypy/pull/21628))
+- Support floats in JSON in fixed-format cache (Ivan Levkivskyi, PR [21603](https://github.com/python/mypy/pull/21603))
+- Add support for TypeForm in incremental mode (Ivan Levkivskyi, PR [21591](https://github.com/python/mypy/pull/21591))
+- Update TypedDictType.__init__ signature to preserve backward compat (Jukka Lehtosalo, PR [21590](https://github.com/python/mypy/pull/21590))
+- Fix constructor calls for union-bounded TypeVars (Jingchen Ye, PR [21571](https://github.com/python/mypy/pull/21571))
+- Fix TypedDict indexing with literal keys in comprehensions (Jingchen Ye, PR [21556](https://github.com/python/mypy/pull/21556))
+- Fix various bugs in TypeVarTuples with defaults (Ivan Levkivskyi, PR [21544](https://github.com/python/mypy/pull/21544))
+- Respect explicit return type of __new__() (Ivan Levkivskyi, PR [21441](https://github.com/python/mypy/pull/21441))
+- Correctly handle empty tuple index when unpacked (Ivan Levkivskyi, PR [21545](https://github.com/python/mypy/pull/21545))
+- Clean-up classes nested in functions (Ivan Levkivskyi, PR [21478](https://github.com/python/mypy/pull/21478))
+- Support protocol checks for self-types in tuple types (Ivan Levkivskyi, PR [21535](https://github.com/python/mypy/pull/21535))
+- Fix type variable defaults depending on previous variables (Ivan Levkivskyi, PR [21526](https://github.com/python/mypy/pull/21526))
+- Fix edge cases in variadic tuple subclasses (Ivan Levkivskyi, PR [21518](https://github.com/python/mypy/pull/21518))
+- Special-case constructor for tuple types (Ivan Levkivskyi, PR [21502](https://github.com/python/mypy/pull/21502))
+- Fix false positive "Expected TypedDict key to be string literal" for Union[TypedDict, dict[K, V]] (Zakir Jiwani, PR [21511](https://github.com/python/mypy/pull/21511))
+- Use explicit Never for type inference (Ivan Levkivskyi, PR [21497](https://github.com/python/mypy/pull/21497))
+- Ignore num_workers in the daemon while it is not supported (Ivan Levkivskyi, PR [21483](https://github.com/python/mypy/pull/21483))
+- Narrow membership in statically known containers (Shantanu, PR [21461](https://github.com/python/mypy/pull/21461))
+- Improve negative narrowing for membership checks on tuples (Shantanu, PR [21456](https://github.com/python/mypy/pull/21456))
+- Analyse typeddict decorators (Pranav Manglik, PR [21267](https://github.com/python/mypy/pull/21267))
+- Small simplifications in combine_function_signatures (Victor Letichevsky, PR [19196](https://github.com/python/mypy/pull/19196))
+- Add test for disabling syntax version checks in .pyi files (Jukka Lehtosalo, PR [21589](https://github.com/python/mypy/pull/21589))
+- Update test requirements (Marc Mueller, PR [21448](https://github.com/python/mypy/pull/21448))
+- Start testing Python 3.15 (Marc Mueller, PR [21439](https://github.com/python/mypy/pull/21439))
+
+### Documentation Updates
+
+- Fix docs build (Ivan Levkivskyi, PR [21580](https://github.com/python/mypy/pull/21580))
+- Fix changelog for mypy 2.1 (Shantanu, PR [21565](https://github.com/python/mypy/pull/21565))
+- Fix duplicated word in overload docs (lphuc2250gma, PR [21482](https://github.com/python/mypy/pull/21482))
+- Fix formatting in `error_code_list2.rst` (sobolevn, PR [21457](https://github.com/python/mypy/pull/21457))
+- Describe our LLM stance in CONTRIBUTING.md (Ivan Levkivskyi, PR [21488](https://github.com/python/mypy/pull/21488))
+
+### Typeshed Updates
+
+Please see [git log](https://github.com/python/typeshed/commits/main) for full list of standard library typeshed stub changes.
+
+### Acknowledgements
+
+Thanks to all mypy contributors who contributed to this release:
+
+- Adam Turner
+- Alice
+- bzoracler
+- Colinxu2020
+- Ivan Levkivskyi
+- Jelle Zijlstra
+- Jingchen Ye
+- Jo
+- Jukka Lehtosalo
+- Kevin Kannammalil
+- lphuc2250gma
+- Marc Mueller
+- Pranav Manglik
+- Rayan Salhab
+- Ryan Heard
+- Sai Asish Y
+- Shantanu
+- sobolevn
+- Vaggelis Danias
+- Victor Letichevsky
+- Zakir Jiwani
+
+I'd also like to thank my employer, Dropbox, for supporting mypy development.
+
 ## Mypy 2.1
 
 We’ve just uploaded mypy 2.1.0 to the Python Package Index ([PyPI](https://pypi.org/project/mypy/)).
