@@ -31,7 +31,6 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 - Use `other` arg instead of `self` for RHS type (Ryan Heard, PR [21569](https://github.com/python/mypy/pull/21569))
 - Use `method_sig` to get the method signature (Ryan Heard, PR [21567](https://github.com/python/mypy/pull/21567))
 - Preserve inherited attribute defaults under separate=True (Jo, PR [21547](https://github.com/python/mypy/pull/21547))
-- Add test for incremental builtin_base class construction across groups (Jo, PR [21524](https://github.com/python/mypy/pull/21524))
 - Fix missing cross-group header deps in incremental builds (Jo, PR [21490](https://github.com/python/mypy/pull/21490))
 - Fix cross-group call to inherited __mypyc_defaults_setup (Jo, PR [21481](https://github.com/python/mypy/pull/21481))
 - Fix non-deterministic class struct layout under `separate=True` (Vaggelis Danias, PR [21530](https://github.com/python/mypy/pull/21530))
@@ -43,7 +42,6 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 - Add `librt.strings.isdigit` codepoint primitive (Vaggelis Danias, PR [21504](https://github.com/python/mypy/pull/21504))
 - Add `librt.strings.isspace` char primitive (Vaggelis Danias, PR [21462](https://github.com/python/mypy/pull/21462))
 - Fix reference leak in mypyc bytes concatenation (Colinxu2020, PR [21469](https://github.com/python/mypy/pull/21469))
-- Reorder librt Python.h includes (Marc Mueller, PR [21446](https://github.com/python/mypy/pull/21446))
 - Document free threading and other doc updates (Jukka Lehtosalo, PR [21494](https://github.com/python/mypy/pull/21494))
 
 ### Fixes to Crashes
@@ -70,7 +68,6 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 - Add Python version checks to native parser (Kevin Kannammalil, PR [21539](https://github.com/python/mypy/pull/21539))
 - Allow nativeparse to parse source code directly (bzoracler, PR [21260](https://github.com/python/mypy/pull/21260))
 - Bump ast-serialize to 0.5.0 (Ivan Levkivskyi, PR [21501](https://github.com/python/mypy/pull/21501))
-- Bump ast-serialize to 0.4.0 (Ivan Levkivskyi, PR [21487](https://github.com/python/mypy/pull/21487))
 
 ### Other Notable Fixes and Improvements
 
@@ -95,18 +92,7 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 - Narrow membership in statically known containers (Shantanu, PR [21461](https://github.com/python/mypy/pull/21461))
 - Improve negative narrowing for membership checks on tuples (Shantanu, PR [21456](https://github.com/python/mypy/pull/21456))
 - Analyse typeddict decorators (Pranav Manglik, PR [21267](https://github.com/python/mypy/pull/21267))
-- Small simplifications in combine_function_signatures (Victor Letichevsky, PR [19196](https://github.com/python/mypy/pull/19196))
-- Add test for disabling syntax version checks in .pyi files (Jukka Lehtosalo, PR [21589](https://github.com/python/mypy/pull/21589))
-- Update test requirements (Marc Mueller, PR [21448](https://github.com/python/mypy/pull/21448))
 - Start testing Python 3.15 (Marc Mueller, PR [21439](https://github.com/python/mypy/pull/21439))
-
-### Documentation Updates
-
-- Fix docs build (Ivan Levkivskyi, PR [21580](https://github.com/python/mypy/pull/21580))
-- Fix changelog for mypy 2.1 (Shantanu, PR [21565](https://github.com/python/mypy/pull/21565))
-- Fix duplicated word in overload docs (lphuc2250gma, PR [21482](https://github.com/python/mypy/pull/21482))
-- Fix formatting in `error_code_list2.rst` (sobolevn, PR [21457](https://github.com/python/mypy/pull/21457))
-- Describe our LLM stance in CONTRIBUTING.md (Ivan Levkivskyi, PR [21488](https://github.com/python/mypy/pull/21488))
 
 ### Typeshed Updates
 
