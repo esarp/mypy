@@ -2,7 +2,7 @@
 
 ## Next Release
 
-## Mypy 2.2 (Unreleased)
+## Mypy 2.2
 
 We've just uploaded mypy 2.2.0 to the Python Package Index ([PyPI](https://pypi.org/project/mypy/)).
 Mypy is a static type checker for Python. This release includes new features, performance
@@ -105,7 +105,7 @@ Contributed by Ivan Levkivskyi (PR [21478](https://github.com/python/mypy/pull/2
 - Use `method_sig` to get the method signature (Ryan Heard, PR [21567](https://github.com/python/mypy/pull/21567))
 - Preserve inherited attribute defaults under separate=True (Jo, PR [21547](https://github.com/python/mypy/pull/21547))
 - Fix missing cross-group header deps in incremental builds (Jo, PR [21490](https://github.com/python/mypy/pull/21490))
-- Fix cross-group call to inherited __mypyc_defaults_setup (Jo, PR [21481](https://github.com/python/mypy/pull/21481))
+- Fix cross-group call to inherited `__mypyc_defaults_setup` (Jo, PR [21481](https://github.com/python/mypy/pull/21481))
 - Fix non-deterministic class struct layout under `separate=True` (Vaggelis Danias, PR [21530](https://github.com/python/mypy/pull/21530))
 - Specialize `s[i] == 'x'` to a codepoint int compare (Vaggelis Danias, PR [21579](https://github.com/python/mypy/pull/21579))
 - Fix reference leak in mypyc bytes concatenation (Colinxu2020, PR [21469](https://github.com/python/mypy/pull/21469))
@@ -159,7 +159,7 @@ Contributed by Ivan Levkivskyi (PR [21478](https://github.com/python/mypy/pull/2
 
 ### Typeshed Updates
 
-Please see [git log](https://github.com/python/typeshed/commits/main) for full list of standard library typeshed stub changes.
+Please see [git log](https://github.com/python/typeshed/commits/main?after=616424285beccaa76f90e87e1e922b1dc68710ca+0&branch=main&path=stdlib) for full list of standard library typeshed stub changes.
 
 ### Acknowledgements
 
