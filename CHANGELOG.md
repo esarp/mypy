@@ -19,13 +19,86 @@ keys beyond those explicitly defined.
 
 Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 
-### Mypyc Improvements
+### Respect Explicit Return Type of `__new__()`
+
+Mypy now respects explicitly annotated return types in `__new__()` methods. Previously, mypy would
+always assume that `__new__()` returns an instance of the current class, ignoring explicit annotations.
+
+With this change, if you explicitly annotate a return type that differs from the implicit type, mypy
+will use the explicit annotation:
+
+```python
+class Factory:
+    def __new__(cls) -> Product:
+        return Product()
+
+reveal_type(Factory())  # Revealed type is "Product", not "Factory"
+```
+
+For backwards compatibility, there are two exceptions:
+- If the return type is `Any`, mypy will still use the current class as the return type.
+- If the explicit return type comes from a superclass and is a supertype of the implicit return type,
+  mypy will use the implicit (more specific) type:
+
+```python
+class Base:
+    def __new__(cls): ...
+
+class Derived(Base): ...
+reveal_type(Derived())  # Still "Derived", not "Base"
+```
+
+This fixes several long-standing issues where explicit `__new__()` return types were ignored.
+
+Contributed by Ivan Levkivskyi (PR [21441](https://github.com/python/mypy/pull/21441)).
+
+### Improved Handling of Classes Nested in Functions
+
+Mypy now handles classes nested in functions more consistently, fixing several issues with
+NamedTuple, TypedDict, Enum, and regular classes defined inside functions.
+
+Previously, these classes had inconsistent behavior with name mangling, symbol table storage, and
+incremental mode. The implementation has been unified so that:
+- All classes nested in functions use consistent name mangling
+- Classes are always stored in the global symbol table (rather than sometimes in the enclosing class)
+- Incremental mode works correctly for all nested class types
+
+This fixes issues where changes to nested classes wouldn't be properly detected in incremental mode,
+and where different magic class types (NamedTuple, TypedDict, etc.) behaved inconsistently.
+
+```python
+def make_class():
+    # All of these now work consistently
+    class Regular: ...
+    NT = NamedTuple("NT", [("x", int)])
+    TD = TypedDict("TD", {"x": int})
+    class MyEnum(Enum):
+        A = 1
+    return Regular, NT, TD, MyEnum
+```
+
+Contributed by Ivan Levkivskyi (PR [21478](https://github.com/python/mypy/pull/21478)).
+
+### Mypyc Free-threading Improvements
 
 - Make function wrappers thread-safe on free-threaded builds (Jukka Lehtosalo, PR [21620](https://github.com/python/mypy/pull/21620))
 - Make list remove and index thread-safe on free-threaded builds (Jukka Lehtosalo, PR [21614](https://github.com/python/mypy/pull/21614))
 - Fix dict iteration memory safety on free-threaded builds (Jukka Lehtosalo, PR [21617](https://github.com/python/mypy/pull/21617))
 - Make some dict primitives thread-safe on free-threading builds (Jukka Lehtosalo, PR [21616](https://github.com/python/mypy/pull/21616))
 - Fix free-threading race condition in argument parsing (Jukka Lehtosalo, PR [21613](https://github.com/python/mypy/pull/21613))
+- Document free threading and other doc updates (Jukka Lehtosalo, PR [21494](https://github.com/python/mypy/pull/21494))
+
+### `librt.strings` Updates
+
+- Add `librt.strings.toupper` and `tolower` codepoint primitives (Vaggelis Danias, PR [21553](https://github.com/python/mypy/pull/21553))
+- Add `librt.strings.isidentifier` codepoint primitive (Vaggelis Danias, PR [21522](https://github.com/python/mypy/pull/21522))
+- Add `librt.strings.isalpha` codepoint primitive (Vaggelis Danias, PR [21521](https://github.com/python/mypy/pull/21521))
+- Add `librt.strings.isalnum` codepoint primitive (Vaggelis Danias, PR [21509](https://github.com/python/mypy/pull/21509))
+- Add `librt.strings.isdigit` codepoint primitive (Vaggelis Danias, PR [21504](https://github.com/python/mypy/pull/21504))
+- Add `librt.strings.isspace` char primitive (Vaggelis Danias, PR [21462](https://github.com/python/mypy/pull/21462))
+
+### Mypyc Improvements
+
 - Fix name lookup when class var and module var have the same name (Jukka Lehtosalo, PR [21594](https://github.com/python/mypy/pull/21594))
 - Report file and line number on uncaught exceptions (Jukka Lehtosalo, PR [21584](https://github.com/python/mypy/pull/21584))
 - Use `other` arg instead of `self` for RHS type (Ryan Heard, PR [21569](https://github.com/python/mypy/pull/21569))
@@ -35,20 +108,13 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 - Fix cross-group call to inherited __mypyc_defaults_setup (Jo, PR [21481](https://github.com/python/mypy/pull/21481))
 - Fix non-deterministic class struct layout under `separate=True` (Vaggelis Danias, PR [21530](https://github.com/python/mypy/pull/21530))
 - Specialize `s[i] == 'x'` to a codepoint int compare (Vaggelis Danias, PR [21579](https://github.com/python/mypy/pull/21579))
-- Add `librt.strings.toupper` and `tolower` codepoint primitives (Vaggelis Danias, PR [21553](https://github.com/python/mypy/pull/21553))
-- Add `librt.strings.isidentifier` codepoint primitive (Vaggelis Danias, PR [21522](https://github.com/python/mypy/pull/21522))
-- Add `librt.strings.isalpha` codepoint primitive (Vaggelis Danias, PR [21521](https://github.com/python/mypy/pull/21521))
-- Add `librt.strings.isalnum` codepoint primitive (Vaggelis Danias, PR [21509](https://github.com/python/mypy/pull/21509))
-- Add `librt.strings.isdigit` codepoint primitive (Vaggelis Danias, PR [21504](https://github.com/python/mypy/pull/21504))
-- Add `librt.strings.isspace` char primitive (Vaggelis Danias, PR [21462](https://github.com/python/mypy/pull/21462))
 - Fix reference leak in mypyc bytes concatenation (Colinxu2020, PR [21469](https://github.com/python/mypy/pull/21469))
-- Document free threading and other doc updates (Jukka Lehtosalo, PR [21494](https://github.com/python/mypy/pull/21494))
 
 ### Fixes to Crashes
 
 - Fix crash on invalid recursive variadic alias (Ivan Levkivskyi, PR [21572](https://github.com/python/mypy/pull/21572))
 - Fix crashes on variadic unpacking in synthetic types (Ivan Levkivskyi, PR [21555](https://github.com/python/mypy/pull/21555))
-- Fix crash on unhandled meet variadic tuple vs indtance (Ivan Levkivskyi, PR [21558](https://github.com/python/mypy/pull/21558))
+- Fix crash on unhandled meet variadic tuple vs instance (Ivan Levkivskyi, PR [21558](https://github.com/python/mypy/pull/21558))
 - Fix crash on deferred generic class nested in function (Ivan Levkivskyi, PR [21557](https://github.com/python/mypy/pull/21557))
 - Fix crash in new-style type alias with variadic unpack (Ivan Levkivskyi, PR [21551](https://github.com/python/mypy/pull/21551))
 - Fix various crashes on recursive type variable defaults (Ivan Levkivskyi, PR [21491](https://github.com/python/mypy/pull/21491))
@@ -58,8 +124,8 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 ### Performance Improvements
 
 - Memoize the options snapshot (Kevin Kannammalil, PR [21354](https://github.com/python/mypy/pull/21354))
-- Optimize SCC scheduler `not_ready_deps` tracking (Kevin Kannammalil, PR [21389](https://github.com/python/mypy/pull/21389))
-- Speed up transitive_dep_hash for singleton SCCs (Kevin Kannammalil, PR [21390](https://github.com/python/mypy/pull/21390))
+- Don't include `not_ready_deps` tracking as relating to mypy internals (Kevin Kannammalil, PR [21389](https://github.com/python/mypy/pull/21389))
+- Speed up transitive dependency hash for singleton SCCs (Kevin Kannammalil, PR [21390](https://github.com/python/mypy/pull/21390))
 - Optimize typeform checks (Jelle Zijlstra, PR [21459](https://github.com/python/mypy/pull/21459))
 
 ### Improvements to the Native Parser
@@ -67,21 +133,18 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 - Support --shadow-file with --native-parser (Jukka Lehtosalo, PR [21623](https://github.com/python/mypy/pull/21623))
 - Add Python version checks to native parser (Kevin Kannammalil, PR [21539](https://github.com/python/mypy/pull/21539))
 - Allow nativeparse to parse source code directly (bzoracler, PR [21260](https://github.com/python/mypy/pull/21260))
-- Bump ast-serialize to 0.5.0 (Ivan Levkivskyi, PR [21501](https://github.com/python/mypy/pull/21501))
 
 ### Other Notable Fixes and Improvements
 
-- Add function definition notes for `too_many_positional_arguments` errors (Kevin Kannammalil, PR [21410](https://github.com/python/mypy/pull/21410))
+- Add function definition notes for `too many positional arguments` errors (Kevin Kannammalil, PR [21410](https://github.com/python/mypy/pull/21410))
 - Fix the exportjson tool (.ff cache to .json conversion) (Jukka Lehtosalo, PR [21628](https://github.com/python/mypy/pull/21628))
 - Support floats in JSON in fixed-format cache (Ivan Levkivskyi, PR [21603](https://github.com/python/mypy/pull/21603))
 - Add support for TypeForm in incremental mode (Ivan Levkivskyi, PR [21591](https://github.com/python/mypy/pull/21591))
-- Update TypedDictType.__init__ signature to preserve backward compat (Jukka Lehtosalo, PR [21590](https://github.com/python/mypy/pull/21590))
+- Update `TypedDictType.__init__` signature to preserve backward compat (Jukka Lehtosalo, PR [21590](https://github.com/python/mypy/pull/21590))
 - Fix constructor calls for union-bounded TypeVars (Jingchen Ye, PR [21571](https://github.com/python/mypy/pull/21571))
 - Fix TypedDict indexing with literal keys in comprehensions (Jingchen Ye, PR [21556](https://github.com/python/mypy/pull/21556))
 - Fix various bugs in TypeVarTuples with defaults (Ivan Levkivskyi, PR [21544](https://github.com/python/mypy/pull/21544))
-- Respect explicit return type of __new__() (Ivan Levkivskyi, PR [21441](https://github.com/python/mypy/pull/21441))
 - Correctly handle empty tuple index when unpacked (Ivan Levkivskyi, PR [21545](https://github.com/python/mypy/pull/21545))
-- Clean-up classes nested in functions (Ivan Levkivskyi, PR [21478](https://github.com/python/mypy/pull/21478))
 - Support protocol checks for self-types in tuple types (Ivan Levkivskyi, PR [21535](https://github.com/python/mypy/pull/21535))
 - Fix type variable defaults depending on previous variables (Ivan Levkivskyi, PR [21526](https://github.com/python/mypy/pull/21526))
 - Fix edge cases in variadic tuple subclasses (Ivan Levkivskyi, PR [21518](https://github.com/python/mypy/pull/21518))
@@ -91,7 +154,7 @@ Contributed by Alice (PR [21382](https://github.com/python/mypy/pull/21382)).
 - Ignore num_workers in the daemon while it is not supported (Ivan Levkivskyi, PR [21483](https://github.com/python/mypy/pull/21483))
 - Narrow membership in statically known containers (Shantanu, PR [21461](https://github.com/python/mypy/pull/21461))
 - Improve negative narrowing for membership checks on tuples (Shantanu, PR [21456](https://github.com/python/mypy/pull/21456))
-- Analyse typeddict decorators (Pranav Manglik, PR [21267](https://github.com/python/mypy/pull/21267))
+- Analyze TypedDict decorators (Pranav Manglik, PR [21267](https://github.com/python/mypy/pull/21267))
 - Start testing Python 3.15 (Marc Mueller, PR [21439](https://github.com/python/mypy/pull/21439))
 
 ### Typeshed Updates
@@ -103,13 +166,13 @@ Please see [git log](https://github.com/python/typeshed/commits/main) for full l
 Thanks to all mypy contributors who contributed to this release:
 
 - Adam Turner
-- Alice
+- alicederyn
 - bzoracler
 - Colinxu2020
+- georgesittas
 - Ivan Levkivskyi
 - Jelle Zijlstra
 - Jingchen Ye
-- Jo
 - Jukka Lehtosalo
 - Kevin Kannammalil
 - lphuc2250gma
